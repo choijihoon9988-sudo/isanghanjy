@@ -1,0 +1,1203 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>포트폴리오 | 최재영</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body { font-family: 'Pretendard', sans-serif; }
+        /* --- START: 개선된 타임라인 스타일 (이전과 동일) --- */
+        .timeline-item {
+            position: relative;
+            padding-bottom: 4rem; /* 항목 간 간격 확보 */
+            padding-left: 3rem; /* 마커 및 선 공간 확보 */
+        }
+        /* 타임라인 세로 선 */
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: 1.25rem; /* 마커 너비의 절반 */
+            top: 1.5rem; /* 마커 시작점 아래 */
+            bottom: -1.5rem; /* 다음 마커 시작점 위까지 */
+            width: 2px;
+            background-color: #E5E7EB; /* 연한 회색 */
+            transform: translateX(-50%);
+            z-index: 0; /* 마커 뒤로 보내기 */
+        }
+        .timeline-item:last-child::before {
+            display: none; /* 마지막 항목 선 제거 */
+        }
+        /* 타임라인 마커(원) */
+        .timeline-marker {
+            position: absolute;
+            left: 1.25rem; /* 마커 너비의 절반 */
+            top: 0.5rem; /* 제목과 정렬 */
+            height: 1.25rem;
+            width: 1.25rem;
+            background-color: white;
+            border: 2px solid #9CA3AF; /* 기본 회색 */
+            border-radius: 9999px; /* 원형 */
+            transform: translateX(-50%);
+            transition: all 0.3s ease;
+            z-index: 1; /* 선 위에 오도록 */
+        }
+        /* 활성화된 타임라인 마커 스타일 (JS로 클래스 추가) */
+        .timeline-item.active .timeline-marker {
+            background-color: #4A80F3; /* 활성 파란색 */
+            border-color: #4A80F3;
+            transform: translateX(-50%) scale(1.2); /* 활성 시 약간 확대 */
+        }
+
+        /* --- START: 타임라인 토글 스타일 (복원) --- */
+        /* 상세 내용 기본 숨김 */
+        .details-content {
+            display: none;
+            margin-top: 1rem; /* 제목과의 간격 */
+            padding: 1rem;
+            background-color: #f9fafb; /* 약간 다른 배경색 */
+            border-radius: 0.5rem;
+            border: 1px solid #e5e7eb;
+        }
+        /* 토글 버튼 스타일 */
+        .details-button {
+            display: inline-block;
+            margin-top: 0.75rem; /* 제목과의 간격 조정 */
+            padding: 0.3rem 0.8rem;
+            background-color: #F3F4F6; /* 연한 회색 배경 */
+            color: #4A80F3; /* 파란색 텍스트 */
+            border-radius: 9999px; /* 둥근 버튼 */
+            font-size: 0.875rem; /* 작은 글씨 */
+            font-weight: 600; /* 약간 굵게 */
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            border: 1px solid transparent; /* 포커스 스타일 위한 준비 */
+        }
+        .details-button:hover, .details-button:focus {
+            background-color: #E5E7EB; /* 호버/포커스 시 약간 진한 회색 */
+            outline: none;
+            border-color: #4A80F3; /* 포커스 시 파란색 테두리 */
+        }
+        /* --- END: 타임라인 토글 스타일 (복원) --- */
+        /* --- END: 개선된 타임라인 스타일 --- */
+
+        /* --- START: '7단계 판매 방정식' 퍼널 스타일 (수정됨) --- */
+        .funnel-container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .funnel-wrapper {
+            display: flex;
+            justify-content: center;
+        }
+        .funnel-wrapper-1 { width: 100%; }
+        .funnel-wrapper-2 { width: 90%; }
+        .funnel-wrapper-3 { width: 80%; }
+        .funnel-wrapper-4 { width: 70%; }
+        .funnel-wrapper-5 { width: 60%; }
+        .funnel-wrapper-6 { width: 50%; }
+        .funnel-wrapper-7 { width: 40%; margin-top: 0.5rem; }
+
+        .funnel-step {
+            width: 100%;
+            background-color: #4A80F3;
+            color: white;
+            padding: 0.75rem 1.5rem;
+            margin-bottom: 4px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 1rem;
+            transition: transform 0.3s ease, box-shadow 0.3s ease, opacity 0.3s ease;
+            cursor: pointer; /* 커서 포인터로 변경 */
+            opacity: 0.7; /* 비활성 상태 투명도 */
+        }
+        .funnel-step:hover {
+             opacity: 1.0; /* 호버 시 투명도 100% */
+        }
+        .funnel-step.active {
+            transform: scale(1.05); /* 활성 시 확대 */
+            box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+            opacity: 1.0; /* 활성 시 투명도 100% */
+        }
+
+        .funnel-step.step-1 { background-color: #EF4444; clip-path: polygon(0% 0%, 100% 0%, 95% 100%, 5% 100%); }
+        .funnel-step.step-2 { background-color: #F97316; clip-path: polygon(5% 0%, 95% 0%, 90% 100%, 10% 100%); }
+        .funnel-step.step-3 { background-color: #EAB308; clip-path: polygon(10% 0%, 90% 0%, 85% 100%, 15% 100%); }
+        .funnel-step.step-4 { background-color: #22C55E; clip-path: polygon(15% 0%, 85% 0%, 80% 100%, 20% 100%); }
+        .funnel-step.step-5 { background-color: #3B82F6; clip-path: polygon(20% 0%, 80% 0%, 75% 100%, 25% 100%); }
+        .funnel-step.step-6 { background-color: #6366F1; clip-path: polygon(25% 0%, 75% 0%, 70% 100%, 30% 100%); }
+        .funnel-step.step-7 {
+            background-color: #8B5CF6;
+            clip-path: polygon(30% 0%, 70% 0%, 100% 100%, 0% 100%);
+            font-size: 1.125rem;
+            font-weight: 700;
+        }
+
+        /* 상세 설명 패널 스타일 */
+        .funnel-detail-content {
+            background-color: white;
+            padding: 1.5rem;
+            border-radius: 0.75rem; /* rounded-xl */
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+        .step-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem; /* w-7 */
+            height: 1.75rem; /* h-7 */
+            margin-right: 0.75rem; /* mr-3 */
+            border-radius: 9999px; /* rounded-full */
+            color: white;
+            font-weight: 700;
+            font-size: 1rem; /* text-base */
+            flex-shrink: 0;
+        }
+        /* 각 단계별 배경색 클래스 */
+        .step-1-bg { background-color: #EF4444; }
+        .step-2-bg { background-color: #F97316; }
+        .step-3-bg { background-color: #EAB308; }
+        .step-4-bg { background-color: #22C55E; }
+        .step-5-bg { background-color: #3B82F6; }
+        .step-6-bg { background-color: #6366F1; }
+        .step-7-bg { background-color: #8B5CF6; }
+        /* --- END: '7단계 판매 방정식' 퍼널 스타일 --- */
+
+
+        /* --- START: OBJECTION #3 시각화 스타일 --- */
+        .capability-card {
+            background-color: #F9FAFB; /* bg-gray-50 */
+            border: 1px solid #E5E7EB; /* border-gray-200 */
+            border-radius: 0.75rem; /* rounded-xl */
+            padding: 2rem; /* p-8 */
+            display: flex;
+            flex-direction: column;
+            height: 100%; /* 그리드 높이 맞춤 */
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.05), 0 2px 4px -2px rgb(0 0 0 / 0.05); /* subtle shadow */
+        }
+        .capability-card h3 {
+            display: flex;
+            align-items: center;
+            font-size: 1.25rem; /* text-xl */
+            font-weight: 700; /* font-bold */
+            margin-bottom: 1rem; /* mb-4 */
+            color: #1F2937; /* text-gray-800 */
+        }
+        .capability-card svg {
+            width: 1.5rem; /* w-6 */
+            height: 1.5rem; /* h-6 */
+            margin-right: 0.75rem; /* mr-3 */
+            color: #4A80F3; /* text-blue-600 */
+            flex-shrink: 0;
+        }
+        /* 고객 후기 이미지 캡션 스타일 */
+        .image-caption {
+            font-size: 0.875rem; /* text-sm */
+            text-align: center;
+            margin-top: 0.5rem; /* mt-2 */
+            color: #6B7280; /* text-gray-500 */
+        }
+
+        .zero-cancel-card {
+             background-color: #EFF6FF; /* bg-blue-50 */
+             border: 1px solid #BFDBFE; /* border-blue-200 */
+             padding: 2.5rem; /* p-10 */
+             border-radius: 1rem; /* rounded-2xl */
+             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.05), 0 4px 6px -4px rgb(0 0 0 / 0.05);
+        }
+        .zero-cancel-card .number {
+            font-size: 6rem; /* text-8xl */
+            font-weight: 800; /* font-extrabold */
+            color: #4A80F3; /* text-blue-600 */
+            line-height: 1;
+        }
+        .zero-cancel-card .unit {
+            font-size: 2.25rem; /* text-4xl */
+            font-weight: 700; /* font-bold */
+            color: #4A80F3; /* text-blue-600 */
+            margin-left: 0.25rem; /* ml-1 */
+            position: relative;
+            top: -0.5rem; /* 숫자와 정렬 */
+        }
+        /* --- END: OBJECTION #3 시각화 스타일 --- */
+
+        /* --- START: 이미지 라이트박스 클릭 스타일 --- */
+        main img {
+            cursor: zoom-in !important; /* 링크 안에 있어도 커서 변경 */
+            transition: opacity 0.3s ease;
+        }
+        main img:hover {
+            opacity: 0.85;
+        }
+        /* --- END: 이미지 라이트박스 클릭 스타일 --- */
+
+        /* --- START: 블러 및 호버 효과 (요청사항 1) --- */
+        .blur-on-load {
+            filter: blur(5px); /* 블러 강도 증가 (요청사항 2) */
+            transition: filter 0.3s ease-in-out;
+        }
+        .blur-on-load:hover {
+            filter: blur(0);
+        }
+        /* --- END: 블러 및 호버 효과 --- */
+    </style>
+</head>
+<body class="bg-white text-[#333333] tracking-tight flex flex-col min-h-screen">
+
+    <header class="fixed top-0 left-0 right-0 bg-white bg-opacity-80 backdrop-blur-sm z-50 shadow-sm">
+        <div class="max-w-5xl mx-auto px-6">
+            <nav class="flex justify-between items-center h-20" aria-label="메인 네비게이션">
+                <a href="index.html" class="text-lg font-bold text-[#333333]">최재영</a>
+                <div class="space-x-8 font-medium text-[#555555]">
+                    <a href="index.html" class="hover:text-[#4A80F3] transition-colors">메인</a>
+                    <a href="portfolio.html" class="hover:text-[#4A80F3] transition-colors" aria-current="page">포트폴리오</a>
+                    <a href="resume.html" class="hover:text-[#4A80F3] transition-colors">경력기술서</a>
+                    <a href="proposal.html" class="hover:text-[#4A80F3] transition-colors">미래 기여 제안</a>
+                </div>
+            </nav>
+        </div>
+    </header>
+
+    <main class="pt-24 md:pt-32 flex-grow">
+        <div class="max-w-4xl mx-auto px-6">
+            <header class="text-center mb-20">
+                <h1 class="text-4xl md:text-5xl font-extrabold mb-6">Visual Proof</h1>
+                <p class="text-lg md:text-xl text-[#555555]">숫자와 데이터로 증명하는 성장 과정입니다.</p>
+            </header>
+
+            <section class="mb-24 md:mb-32" aria-labelledby="objection1-heading">
+                <div class="text-left max-w-2xl">
+                    <p class="text-sm font-bold text-[#4A80F3] mb-2">OBJECTION #1</p>
+                    <h2 id="objection1-heading" class="text-3xl md:text-4xl font-bold mb-4">"영업 경험이 PM 직무 역량과 어떻게 연결됩니까?"</h2>
+                    <p class="text-lg text-[#555555] leading-relaxed mb-12">
+                        <strong class="font-semibold">매장 오픈멤버로서 현장에서 부딪히며 제가 직접 구축하고 검증한</strong> '7단계 판매 방정식'은 단순 판매 기술이 아닌, <strong class="font-semibold">고객 여정 전체를 설계하고 데이터로 최적화</strong>한 마케팅 퍼널 구축 경험과 같습니다. 각 단계는 <strong class="font-semibold">실제 고객 데이터와 심리 분석</strong>에 기반한 전환율 극대화 전략입니다.
+                    </p>
+                </div>
+
+                <article class="bg-[#FAFAFA] p-8 md:p-12 rounded-2xl" aria-labelledby="sales-equation-heading">
+                    <h3 id="sales-equation-heading" class="text-2xl font-bold text-center mb-10">7단계 판매 방정식: Marketing Funnel</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-x-8 lg:gap-x-12 items-start">
+                        <div class="funnel-container">
+                            <div class="funnel-wrapper funnel-wrapper-1">
+                                <div class="funnel-step step-1" onclick="showFunnelDetails(1)">
+                                    <span>1. 환대 및 진단</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-2">
+                                <div class="funnel-step step-2" onclick="showFunnelDetails(2)">
+                                    <span>2. 기준점 제시</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-3">
+                                <div class="funnel-step step-3" onclick="showFunnelDetails(3)">
+                                    <span>3. 가치 증명</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-4">
+                                <div class="funnel-step step-4" onclick="showFunnelDetails(4)">
+                                    <span>4. 비교 우위 확립</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-5">
+                                <div class="funnel-step step-5" onclick="showFunnelDetails(5)">
+                                    <span>5. 가격 저항 해소</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-6">
+                                <div class="funnel-step step-6" onclick="showFunnelDetails(6)">
+                                    <span>6. 최종 거절 극복</span>
+                                </div>
+                            </div>
+                            <div class="funnel-wrapper funnel-wrapper-7">
+                                <div class="funnel-step step-7" onclick="showFunnelDetails(7)">
+                                    <span>7. 클로징 (전환율 66.6%)</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="funnel-details-container sticky top-28 mt-8 md:mt-0">
+                            <div id="funnel-detail-1" class="funnel-detail-content">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-1-bg">1</span>환대 및 진단
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">고객의 경계심 해소 및 핵심 문제(Pain Point) 파악</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">프리미엄 생수 제공으로 첫인상 차별화, 설문 기반 데이터 확보</p>
+                            </div>
+                            <div id="funnel-detail-2" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-2-bg">2</span>기준점 제시
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">시장의 판단 기준을 재정의하여 상담 주도권 확보</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">'브랜드 역사', '핵심 소재' 등 유리한 기준 선점, 전문가 권위 활용</p>
+                            </div>
+                            <div id="funnel-detail-3" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-3-bg">3</span>가치 증명
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">제품 가치에 대한 사회적 증거 제시 및 감성적 연결</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">유명인/고급 호텔 사용 사례(Social Proof) 제시, 기술 스펙을 고객 혜택으로 번역</p>
+                            </div>
+                            <div id="funnel-detail-4" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-4-bg">4</span>비교 우위 확립
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">경쟁사 대비 우리 제품의 명확한 차별점 각인</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">경쟁사 강점을 약점으로 재구성(Framing), 고객 초기 니즈 상기</p>
+                            </div>
+                            <div id="funnel-detail-5" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-5-bg">5</span>가격 저항 해소
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">'비용' 인식을 '가치 투자'로 전환하여 가격 수용도 상승</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">단계별 할인 명분 제시로 특별 혜택 인식, 장기 사용가치로 가격 재구성</p>
+                            </div>
+                            <div id="funnel-detail-6" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-6-bg">6</span>최종 거절 극복
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">고객의 마지막 불안감을 해소하고 구매 확신 유도</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">5단계 거절 극복 프로세스(공감 → 니즈 재확인 → 권위 활용 → 손실 회피 강조 → 최종 제안)</p>
+                            </div>
+                            <div id="funnel-detail-7" class="funnel-detail-content hidden">
+                                <h4 class="font-bold text-lg mb-4 flex items-center">
+                                    <span class="step-badge step-7-bg">7</span>클로징 (전환율 66.6%)
+                                </h4>
+                                <strong class="font-bold block text-gray-800 mb-1">핵심 목적</strong>
+                                <p class="text-gray-600 leading-relaxed mb-4">구매 결정 확신 강화 및 고객 만족 극대화</p>
+                                <strong class="font-bold block text-gray-800 mb-1">전략</strong>
+                                <p class="text-gray-600 leading-relaxed">구매 후 인지부조화 해소, 추천 유도를 통한 자기 설득 강화 (최종 전환율 66.6%)</p>
+                            </div>
+                        </div>
+                    </div>
+                </article>
+            </section>
+
+            <section class="mb-24 md:mb-32" aria-labelledby="objection2-heading">
+                <div class="text-left max-w-2xl mb-16">
+                    <p class="text-sm font-bold text-[#4A80F3] mb-2">OBJECTION #2</p>
+                    <h2 id="objection2-heading" class="text-3xl md:text-4xl font-bold mb-4">"마케팅 실무 경험이 부족한데, PM 역할을 수행할 수 있습니까?"</h2>
+                    <p class="text-lg text-[#555555] leading-relaxed">
+                        정식 마케터는 아니었지만, 매장의 '마케팅 부재' 문제를 인지하고 능동적으로 해결하는 과정에서, 결과로 증명하기 위해 A부터 Z까지 직접 부딪히며 저만의 <strong class="font-semibold">'문제 해결 시스템'</strong>을 구축해 본 실전 경험입니다.
+                    </p>
+                </div>
+
+                <div id="timeline" class="relative">
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-1">첫 실행: "손님이 오지 않았습니다"</h3>
+                        <button class="details-button" onclick="toggleDetails('details-a')" aria-expanded="false" aria-controls="details-a">자세히 보기 &rarr;</button>
+                        <div id="details-a" class="details-content">
+                            <div class="md:flex gap-8 items-start">
+                                <div class="md:w-1/2 text-lg leading-relaxed">
+                                    <p>오픈 초기 방문객 부재 문제를 해결하기 위해, 지시 없이 직접 전단지를 제작하고 배포했습니다. 행동이 결과를 만들 것이라 믿었습니다.</p>
+                                </div>
+                                <figure class="md:w-1/2 mt-6 md:mt-0">
+                                    <img src="직접제작한전단지이미지.png" alt="오픈 초기 직접 제작 및 배포한 전단지" class="rounded-lg shadow-md">
+                                    <figcaption class="text-sm text-center mt-2 text-gray-600"><strong class="text-[#4A80F3]">결과: 문의 0건, 오프라인 채널 한계 확인</strong></figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-1">실패 데이터 분석: 온라인 전환</h3>
+                         <button class="details-button" onclick="toggleDetails('details-b')" aria-expanded="false" aria-controls="details-b">자세히 보기 &rarr;</button>
+                        <div id="details-b" class="details-content">
+                            <div class="md:flex gap-8 items-start">
+                                <div class="md:w-1/2 text-lg leading-relaxed">
+                                    <p>실패 데이터(문의 0건) 분석 후, 오프라인 채널의 한계를 확인하고 온라인 마케팅으로 전략을 전환했습니다. 네이버 플레이스 최적화를 즉시 실행했습니다.</p>
+                                </div>
+                                <figure class="md:w-1/2 mt-6 md:mt-0">
+                                     <img src="네이버플레이스1위스크린샷.png" alt="'부산 침대' 키워드로 네이버 플레이스 1위를 유지한 화면" class="rounded-lg shadow-md">
+                                     <figcaption class="text-sm text-center mt-2 text-gray-600"><strong class="text-[#4A80F3]">결과: '부산 침대' 키워드 1-2위 6개월 유지</strong></figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-1">피드백 적용: 콘텐츠 개선</h3>
+                        <button class="details-button" onclick="toggleDetails('details-c')" aria-expanded="false" aria-controls="details-c">자세히 보기 &rarr;</button>
+                        <div id="details-c" class="details-content">
+                            <p class="text-lg leading-relaxed mb-2">플레이스 상위 노출 후 콘텐츠 질 개선에 집중했습니다. 초기 '후킹' 중심 전략에서 <strong class="font-semibold">피드백을 반영하여</strong>, <strong class="font-semibold">귀사의 '돈이 되는 글쓰기' 원리를 학습하고 적용</strong>하여 가치 중심 콘텐츠로 전환했습니다.</p>
+                            <p class="text-lg leading-relaxed mb-6"><strong class="font-semibold text-[#4A80F3]">(결과: 발행 후 '블로그 보고 왔어요' 피드백과 함께 평일 평균 집객 1~2팀 증가)</strong></p>
+                            <div class="grid md:grid-cols-2 gap-6">
+                                <figure>
+                                    <a href="https://blog.naver.com/sealybusan/223687771650" target="_blank" rel="noopener noreferrer">
+                                        <img src="before-content.png" alt="개선 전 후킹과 할인 강조 위주의 블로그 콘텐츠" class="rounded-lg shadow-md" style="cursor: pointer !important;"> </a>
+                                    <figcaption class="text-sm text-center mt-2 text-gray-600">Before (후킹 중심): 씰리침대와 1800억 전투기의 공통점 1가지</figcaption>
+                                </figure>
+                                <figure>
+                                    <a href="https://blog.naver.com/sealybusan/223937248898" target="_blank" rel="noopener noreferrer">
+                                        <img src="after-content.png" alt="개선 후 고객 문제 해결과 가치 전달에 집중한 블로그 콘텐츠" class="rounded-lg shadow-md" style="cursor: pointer !important;"> </a>
+                                    <figcaption class="text-sm text-center mt-2 text-gray-600">After (가치 중심): 부산씰리? 매장에서 편한데 집에서 뻐근한 이유, 90%가 모르는 1가지</figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-1">데이터 기반: "경쟁사 반박 제거 전략 구축" </h3>
+                         <button class="details-button" onclick="toggleDetails('details-d')" aria-expanded="false" aria-controls="details-d">자세히 보기 &rarr;</button>
+                        <div id="details-d" class="details-content">
+                            <div class="gap-8 items-start">
+                                <div class="text-lg leading-relaxed">
+                                   <p>24년 2월의 초사고 글쓰기 1회차 원데이 클래스에서 얻은 '지식인 니즈 파악' 마케팅의 영감을 바탕으로, '지식인' 데이터를 분석하여 경쟁사 반박 제거 시스템을 구축했고, 이를 통해 약 30%의 경쟁사 이탈률을 방어하는 성과를 낼 수 있었습니다.
+                                   <p class="text-lg leading-relaxed mt-2"><strong class="font-semibold text-[#4A80F3]">(결과: 경쟁사 이탈률 약 30% 방어)</strong></p>
+                                </div>
+                                <div class="grid grid-cols-2 gap-4 mt-6">
+                                    <figure>
+                                        <img src="경쟁사-부정적-증거.png" alt="경쟁사 브랜드의 허리 통증 관련 부정적 지식인 질문/답변" class="rounded-lg shadow-md w-full h-80 object-cover object-top">
+                                        </figure>
+                                    <figure>
+                                        <img src="우리-긍정적-증거.png" alt="우리 브랜드의 허리 통증 개선 관련 긍정적 고객 후기" class="rounded-lg shadow-md w-full h-80 object-cover object-top">
+                                        </figure>
+                                </div>
+                                <figcaption class="text-sm text-center mt-4 text-gray-600">지식인 데이터 분석 - '시몬스 허리'(부정적 증거) vs '씰리 허리'(긍정적 증거) 검색 결과 비교</figcaption>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-1">주도적 문제 해결: "지시 없이 자발적 실행 증명" </h3>
+                        <button class="details-button" onclick="toggleDetails('details-e')" aria-expanded="false" aria-controls="details-e">자세히 보기 &rarr;</button>
+                        <div id="details-e" class="details-content">
+                            <p class="text-lg leading-relaxed mb-8">결과에 안주하지 않고, 매장의 차별화와 신뢰도 향상을 위해 지시 없이 스스로 문제를 찾아 해결했습니다.</p>
+                            <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 text-center">
+                                <figure>
+                                    <img src="website-screenshot.png" alt="개인 비용을 투자하여 직접 제작한 씰리침대 해운대점 웹사이트 메인 화면" class="blur-on-load rounded-lg shadow-md mb-2 w-full h-56 object-cover object-top" onclick="openLightbox(this.src, 'https://sealyhaeundae.imweb.me/')">
+                                    <figcaption class="text-sm font-semibold">전문성 확보를 위한 웹사이트<br><span class="text-[#4A80F3] font-semibold">(사비)</span> 직접 제작</figcaption>
+                                </figure>
+                                <figure>
+                                    <img src="seo-news-article.png" alt="직접 기획하고 발행하여 SEO 상위 노출을 달성한 뉴스 기사" class="blur-on-load rounded-lg shadow-md mb-2 w-full h-56 object-cover object-top" onclick="openLightbox(this.src, 'https://www.woodkorea.co.kr/news/articleView.html?idxno=85004')">
+                                    <figcaption class="text-sm font-semibold">Perplexity 활용<br>SEO 최적화 뉴스 기사 초안 작성<br>(증거의 제시 - 깔아두기)</figcaption>
+                                </figure>
+                                <figure>
+                                     <img src="리뷰1위달성QR배너.png" alt="고객 리뷰 작성을 유도하기 위해 제작한 QR코드 배너" class="blur-on-load rounded-lg shadow-md mb-2 w-full h-56 object-cover object-center">
+                                    <figcaption class="text-sm font-semibold">사회적 증거 구축: QR 배너 <span class="text-[#4A80F3] font-semibold">(사비)</span> 도입, 리뷰 80개 확보 및 '부산씰리' 리뷰 1위 달성</figcaption>
+                                </figure>
+                                <figure>
+                                    <img src="체험단퀄리티개선가이드.png" alt="블로그 체험단의 콘텐츠 품질 개선을 위해 제작한 Notion 가이드 페이지" class="blur-on-load rounded-lg shadow-md mb-2 w-full h-56 object-cover object-top">
+                                    <figcaption class="text-sm font-semibold">부산 다수 매장 경쟁 속 차별화를 위해 Notion 체험단 가이드 제작</figcaption>
+                                </figure>
+                            </div>
+                        </div>
+                    </article>
+
+                    <article class="timeline-item">
+                        <div class="timeline-marker" aria-hidden="true"></div>
+                        <h3 class="text-2xl font-bold mb-4">결과: 시스템으로 만들고 숫자로 증명</h3>
+                        <p class="text-lg leading-relaxed mb-8">이러한 성과는 감에 의존하기보다, 데이터를 기반으로 시스템을 구축하고 능동적으로 실행하며 얻어진 결과입니다.</p>
+
+                        <div class="grid md:grid-cols-1 gap-8">
+                            <div class="bg-[#FAFAFA] p-6 md:p-8 rounded-2xl border border-gray-200">
+                                <h4 class="font-bold text-lg md:text-xl mb-4 text-center">시스템 개선 성과 (월 매출 및 상담 전환율)</h4>
+                                <div class="h-80 md:h-96"><canvas id="storyCombinedProcessChart"></canvas></div>
+                                <p class="text-center text-sm text-gray-600 mt-4">
+                                    * 6월 성과 하락을 데이터로 인지하고 '7단계 방정식' 시스템을 고도화하여 7월에 즉각적인 성과 회복(<strong class="text-blue-600">전환율 66.6%</strong>)을 견인했습니다.
+                                </p>
+                            </div>
+                        </div>
+                    </article>
+                </div>
+            </section>
+
+            <hr class="my-20 md:my-24 border-gray-200">
+
+            <section class="mb-24 md:mb-32" aria-labelledby="objection3-heading">
+                <div class="text-left max-w-2xl mb-16">
+                    <p class="text-sm font-bold text-[#4A80F3] mb-2">OBJECTION #3</p>
+                    <h2 id="objection3-heading" class="text-3xl md:text-4xl font-bold mb-4">"B2C 상담 경험이 B2B 클라이언트 관리 역량을 증명할 수 있습니까?"</h2>
+                    <p class="text-lg text-[#555555] leading-relaxed">
+                        네, 직접적인 B2B 에이전시 경험은 없습니다. 하지만 지난 1년간, 저는 단순 판매를 넘어 PM에게 요구되는 핵심적인 <strong class="font-semibold">'클라이언트 성공' 역량</strong>을 실전에서 <strong class="font-semibold">'결과'</strong>로 증명해왔습니다. 그 근거는 아래 4가지와 같습니다.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-8 mb-12">
+                    <div class="capability-card">
+                        <h3>
+                            <span class="text-[#4A80F3] mr-3 flex-shrink-0" aria-hidden="true">❶</span>
+                            문제 해결 중심 소통
+                        </h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                            '7단계 판매 방정식' 시스템으로 고객의 근본 문제를 진단하고 맞춤 해결책을 제시했습니다. 특히 해운대라는 고급 상권의 특성상, 방문 비중이 높았던 전문직 등 고관여 고객 상담 경험을 통해 B2B 클라이언트와의 효과적인 소통 역량을 기를 수 있었습니다.
+                        </p>
+                    </div>
+
+                     <div class="capability-card">
+                         <h3>
+                            <span class="text-[#4A80F3] mr-3 flex-shrink-0" aria-hidden="true">❷</span>
+                            위기관리 및 고객 유지
+                        </h3>
+                        <p class="text-sm text-gray-600 leading-relaxed">
+                             환불 요청, 제품 불만 등 다양한 컴플레인을 직접 해결하며 고객의 신뢰를 지켜냈습니다. 이 모든 노력은 '계약 취소율 0%'라는 결과로 이어졌습니다.
+                        </p>
+                    </div>
+
+                    <div class="capability-card">
+                         <h3>
+                            <span class="text-[#4A80F3] mr-3 flex-shrink-0" aria-hidden="true">❸</span>
+                            끝까지 책임지는 '고객 성공'
+                        </h3>
+                        <p class="text-sm text-gray-600 leading-relaxed mb-4">
+                            퇴사 이후(25년 7월~)에도 개인적으로 연락 온 고객의 A/S, 불편 사항까지 책임지고 응대하며 '고객 성공' 철학을 실천했습니다.
+                        </p>
+                        <div class="mt-4 text-center">
+                            <button onclick="openLightbox('끝까지 책임지는 \'고객 성공\' (퇴사 후 고객관리 캡처).png')" class="text-sm font-semibold text-[#4A80F3] hover:text-blue-700 transition-colors">
+                                고객 관리 문자 내역 확인 💬
+                            </button>
+                        </div>
+                        </div>
+
+                    <div class="capability-card">
+                        <h3>
+                            <span class="text-[#4A80F3] mr-3 flex-shrink-0" aria-hidden="true">❹</span>
+                            신뢰 기반 관계 구축
+                        </h3>
+                        <blockquote class="text-sm italic text-gray-700 my-4 p-4 bg-gray-100 border-l-4 border-blue-300 rounded-r-lg">
+                            "...최재영 매니저님께 친절하고 깔끔하게 상담해주셔서 당일 계약 완료했습니다."
+                        </blockquote>
+                        <div class="mt-4 text-center">
+                            <button onclick="openGalleryLightbox(0)" class="text-sm font-semibold text-[#4A80F3] hover:text-blue-700 transition-colors">
+                                고객 후기 캡처 확인 📸
+                            </button>
+                        </div>
+                        </div>
+                </div>
+
+                <div class="zero-cancel-card text-center mt-12">
+                    <div class="number">0<span class="unit">%</span></div>
+                    <p class="font-semibold text-xl text-gray-700 mt-2">1년간 계약 취소율</p>
+                    <p class="text-sm text-gray-600 mt-4 leading-relaxed max-w-xl mx-auto">
+                        이는 위기 상황에서도 고객 관계를 유지하고 만족도를 관리하는 저의 노력을 보여주는 결과라고 생각합니다.
+                    </p>
+                </div>
+
+                <p class="text-xl text-[#333333] leading-relaxed mt-16 font-semibold text-center">
+                    이러한 경험들을 통해, 저는 어떤 상황에서도 <strong class="text-[#4A80F3]">고객(클라이언트)의 입장에서 문제를 진단</strong>하고, <strong class="text-[#4A80F3]">신뢰를 바탕으로 설득</strong>하며, <strong class="text-[#4A80F3]">끝까지 책임지는 자세</strong>를 기를 수 있었습니다. 이는 이상한마케팅의 PM으로서 클라이언트와 성공적인 파트너십을 구축하고 <strong class="text-[#4A80F3]">'고객 성공'</strong>을 이끌어내는 데 가장 중요한 자질이라고 생각합니다.
+                </p>
+                <div class="mt-20 py-12 px-6 bg-white border border-gray-200 rounded-lg shadow-sm flex flex-col md:flex-row justify-between items-center text-center md:text-left">
+                    <div>
+                        <h4 class="text-xl font-bold mb-1 text-gray-800">1% 시스템: 7단계 판매 방정식</h4>
+                        <p class="text-gray-600 mb-4 md:mb-0">귀사의 '고객 성공' 전략에 참고가 될까 하여, 제가 1년간 검증한 설득 시스템을 공유합니다.</p>
+                    </div>
+                    <button id="downloadPdfButton" class="inline-block bg-gray-800 text-white font-semibold py-3 px-5 rounded-md hover:bg-gray-700 transition-colors mt-4 md:mt-0 cursor-pointer">
+                        시스템 10초 만에 확인하기 ⚡️
+                    </button>
+                </div>
+                </section>
+
+            <hr class="my-20 md:my-24 border-gray-200">
+
+            <section class="mb-24 md:mb-32" aria-labelledby="objection4-heading">
+                <div class="text-left max-w-2xl mb-16">
+                    <p class="text-sm font-bold text-[#4A80F3] mb-2">OBJECTION #4</p>
+                    <h2 id="objection4-heading" class="text-3xl md:text-4xl font-bold mb-4">"'실패' 경험과 그로부터 얻은 교훈은 무엇입니까?"</h2>
+                    <p class="text-lg text-[#555555] leading-relaxed">
+                        네, 저는 성공만큼이나 실패에서도 값진 교훈을 얻었습니다. 실패를 통해 얻은 '두 가지 자산'이야말로 제가 회사에 기여할 수 있는 진짜 무기라고 생각합니다.
+                    </p>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-x-8 gap-y-12">
+                    <article class="flex flex-col">
+                        <h3 class="text-2xl font-bold mb-4"><span class="text-[#4A80F3]">❶</span> 실패로 얻은 '전략적 학습력'</h3>
+                        <div class="relative rounded-lg overflow-hidden mb-4 shadow-lg cursor-pointer" style="padding-bottom: 56.25%;" onclick="openVideoLightbox('SvJjCeyvtVQ')">
+                             <iframe class="absolute top-0 left-0 w-full h-full pointer-events-none" src="https://www.youtube.com/embed/SvJjCeyvtVQ" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                         <p class="text-lg text-[#555555] leading-relaxed flex-grow">
+                            가장 값비싼 실패는 아이템파이프 재직 당시 채널 운영 경험입니다. 단기 수익화에만 집중한 결과 구독자 확보와 채널 성장에 명백히 실패했습니다.<br><br class="mt-4 block"> 이 실패를 통해 <strong class="font-semibold">고객에게 실질적인 가치를 제공하지 못하는 전략은 결코 지속될 수 없다</strong>는 것을 뼈저리게 배웠습니다. 이 교훈은 이후 모든 콘텐츠 기획에서 <strong class="font-semibold">단기적 성과가 아닌, 장기적인 고객 가치 제안</strong>을 최우선으로 삼는 저의 핵심 기준이 되었습니다.
+                        </p>
+                    </article>
+
+                    <article class="flex flex-col">
+                        <h3 class="text-2xl font-bold mb-4"><span class="text-[#4A80F3]">❷</span> 학습 이전의 '본능적 실행력'</h3>
+                         <div class="relative rounded-lg overflow-hidden mb-4 shadow-lg cursor-pointer" style="padding-bottom: 56.25%;" onclick="openVideoLightbox('YOUOkPGvVCs')">
+                            <iframe class="absolute top-0 left-0 w-full h-full pointer-events-none" src="https://www.youtube.com/embed/YOUOkPGvVCs" title="구독자 100명 감사 영상 (성장의 시작점)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                        </div>
+                         <p class="text-lg text-[#555555] leading-relaxed flex-grow">
+                            물론, 실패만 한 것은 아닙니다. 13살 시절, 기획안 없이 시작했던 유튜브 채널(영상 속 모습)은 <strong class="font-semibold">오직 꾸준한 실행력</strong> 하나로 <strong class="font-semibold">구독자 1,120명, 누적 조회수 32만 회</strong>를 만들었습니다.<br><br class="mt-4 block"> 이 경험은 <strong class="font-semibold">실행의 중요성</strong>을 가르쳐주었지만, 아이템파이프에서의 실패는 그 실행이 <strong class="font-semibold">올바른 전략과 고객 가치 위에 있어야 함</strong>을 깨닫게 했습니다.
+                        </p>
+                    </article>
+                </div>
+
+                <div class="mt-16 bg-blue-50 border border-blue-200 rounded-2xl p-8 md:p-12 text-center">
+                    <p class="text-xl md:text-2xl text-[#333333] leading-relaxed font-semibold">
+                        저는 채널을 실패시키며 <strong class="text-[#4A80F3]">'전략의 기준'</strong>과, 32만 조회수를 달성하며 <strong class="text-[#4A80F3]">'실행의 감각'</strong>을 얻을 수 있었습니다. <br class="hidden md:block"> 이 두 가지 자산의 균형을 통해 클라이언트의 시행착오를 줄이고, '고객 성공'이라는 최종 목표에 도달하는 가장 효과적인 길을 제시하겠습니다.
+                    </p>
+                </div>
+            </section>
+
+            <section class="py-16 text-center">
+                <a href="resume.html" class="inline-block bg-[#4A80F3] text-white font-bold text-lg py-4 px-10 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105">
+                    상세 경력 및 회사 Fit 확인하기
+                </a>
+            </section>
+        </div>
+    </main>
+
+    <div id="aiHelpModal" class="fixed inset-0 bg-black bg-opacity-70 z-[100] flex justify-center items-center p-6 hidden">
+        <div class="bg-white rounded-xl shadow-2xl max-w-lg w-full p-8 relative transform transition-all duration-300 ease-out scale-95 opacity-0" id="modalContent">
+            <button id="closeModalButton" class="absolute top-4 right-5 text-gray-400 hover:text-gray-600 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                    <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            
+            <h3 class="text-2xl font-bold mb-4 text-gray-800">AI로 10초 만에 활용하기 💡</h3>
+            <p class="text-gray-600 mb-6">
+                바쁘신 면접관님을 위해, 다운로드하신 PDF를 10초 만에 활용하는 AI 프롬프트를 공유합니다.
+            </p>
+
+            <div class="space-y-5">
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">프롬프트 1 </label>
+                    <textarea id="prompt1" readonly class="w-full h-24 p-3 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500">[PDF 파일 첨부] 이 "7단계 판매 방정식" 시스템을 이상한마케팅의 "콘텐츠 기획" 업무에 적용할 때, 가장 효과적인 아이디어 3가지를 제안해줘.</textarea>
+                    <button onclick="copyToClipboard('prompt1', this)" class="mt-2 text-sm font-semibold text-white bg-[#4A80F3] hover:bg-blue-700 py-2 px-4 rounded-md transition-colors">
+                        프롬프트 복사하기
+                    </button>
+                </div>
+
+                <div>
+                    <label class="block text-sm font-semibold text-gray-700 mb-2">프롬프트 2 </label>
+                    <textarea id="prompt2" readonly class="w-full h-28 p-3 border border-gray-300 rounded-md bg-gray-50 text-sm text-gray-800 resize-none focus:outline-none focus:ring-2 focus:ring-blue-500">[PDF 파일 첨부] 이 "7단계 판매 방정식"을 이상한마케팅의 "6단계 밸런스 이론" 중 '의심' 단계에 적용하여, 전문직 클라이언트의 고객 설득 논리를 강화할 방안을 제안해줘.</textarea>
+                    <button onclick="copyToClipboard('prompt2', this)" class="mt-2 text-sm font-semibold text-white bg-[#4A80F3] hover:bg-blue-700 py-2 px-4 rounded-md transition-colors">
+                        프롬프트 복사하기
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="imageLightbox" class="fixed inset-0 bg-black bg-opacity-80 z-[110] flex justify-center items-center p-4 hidden" onclick="closeLightbox()">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition-colors z-[130]" onclick="closeLightbox()">&times;</button>
+        
+        <div class="relative flex justify-center items-center" onclick="event.stopPropagation()">
+            <button id="lightboxPrev" 
+                    class="absolute -left-14 md:-left-20 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-all z-[130] hidden" 
+                    style="filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));"
+                    onclick="changeGalleryImage(-1, event)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M11.25 9l-3 3m0 0l3 3m-3-3h7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+
+            <img id="lightboxImage" src="" alt="확대 이미지" 
+                 class="max-w-[75vw] md:max-w-[60vw] max-h-[90vh] rounded-lg shadow-xl z-[120] object-contain">
+
+            <button id="lightboxNext" 
+                    class="absolute -right-14 md:-right-20 top-1/2 -translate-y-1/2 text-white/70 hover:text-white transition-all z-[130] hidden" 
+                    style="filter: drop-shadow(0 1px 2px rgb(0 0 0 / 0.5));"
+                    onclick="changeGalleryImage(1, event)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 md:h-12 md:w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12.75 15l3-3m0 0l-3-3m3 3h-7.5M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+            </button>
+        </div>
+         </div>
+    <div id="videoLightbox" class="fixed inset-0 bg-black bg-opacity-80 z-[110] flex justify-center items-center p-4 hidden" onclick="closeVideoLightbox()">
+        <button class="absolute top-6 right-6 text-white text-4xl hover:text-gray-300 transition-colors z-[130]" onclick="closeVideoLightbox(event)">&times;</button>
+        <div id="videoLightboxContent" class="relative w-full max-w-4xl aspect-video bg-black z-[120]" onclick="event.stopPropagation()">
+            </div>
+    </div>
+    <footer class="py-12 bg-[#FAFAFA] border-t border-gray-200 mt-16">
+        <div class="max-w-5xl mx-auto px-6 text-center text-[#555555]">
+            <p>&copy; 2025 Choi Jae Young. All Rights Reserved.</p>
+            <p class="text-sm mt-2 mb-4">본 웹사이트는 이상한마케팅 '콘텐츠 마케터(PM)' 직무 지원을 위해 제작되었습니다.</p>
+            <a href="[최재영_지원서류_통합본.pdf]" download="최재영_지원서류_통합본.pdf" class="inline-flex items-center text-sm font-medium py-2 px-4 rounded-md bg-[#AAAAAA] text-white hover:bg-[#999999] transition-colors duration-300">
+                <span class="mr-2">🖨️</span> 인쇄용 전체 자료 받기
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // === START: 갤러리 라이트박스 상태 변수 (신규) ===
+        let currentGallery = [];
+        let currentGalleryIndex = 0;
+        // START: 갤러리 배열 수정 (Task 1, 2)
+        const trustGallery = [
+            '02.신뢰 기반 관계 구축 (고객 후기 캡처).png', // Task 1: 먼저 보이도록 순서 변경
+            '신뢰 기반 관계 구축 (고객 후기 캡처).png'  // Task 2: 탐색할 두 번째 이미지
+        ];
+        // END: 갤러리 배열 수정
+        // === END: 갤러리 라이트박스 상태 변수 ===
+
+
+        // === 상세 내용 토글 함수 (복원) ===
+        function toggleDetails(id) {
+            const detailsDiv = document.getElementById(id);
+            const button = detailsDiv.previousElementSibling; 
+
+            if (!detailsDiv || !button) {
+                console.error("토글할 상세 내용이나 버튼을 찾을 수 없습니다:", id);
+                return;
+            }
+            
+            const isHidden = detailsDiv.style.display === 'none' || detailsDiv.style.display === '';
+
+            if (isHidden) {
+                detailsDiv.style.display = 'block';
+                button.innerHTML = '간략히 보기 &uarr;';
+                button.setAttribute('aria-expanded', 'true');
+            } else {
+                detailsDiv.style.display = 'none';
+                button.innerHTML = '자세히 보기 &rarr;';
+                 button.setAttribute('aria-expanded', 'false');
+            }
+        }
+
+        // === AI 모달용 프롬프트 복사 함수 ===
+        function copyToClipboard(elementId, button) {
+            const textarea = document.getElementById(elementId);
+            
+            navigator.clipboard.writeText(textarea.value).then(() => {
+                const originalText = button.innerHTML;
+                button.innerHTML = '복사 완료!';
+                button.disabled = true;
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 2000);
+            }).catch(err => {
+                console.error('클립보드 복사 실패:', err);
+                try {
+                    textarea.select();
+                    document.execCommand('copy');
+                    const originalText = button.innerHTML;
+                    button.innerHTML = '복사 완료!';
+                    button.disabled = true;
+                    setTimeout(() => {
+                        button.innerHTML = originalText;
+                        button.disabled = false;
+                    }, 2000);
+                } catch (e) {
+                     alert('복사에 실패했습니다. 직접 복사해주세요.');
+                }
+            });
+        }
+
+        // === NEW: 퍼널 상세 설명 표시 함수 ===
+        function showFunnelDetails(stepNumber) {
+            // 모든 상세 설명 숨기기
+            document.querySelectorAll('.funnel-detail-content').forEach(detail => {
+                detail.classList.add('hidden');
+            });
+
+            // 선택된 상세 설명 보이기
+            const selectedDetail = document.getElementById(`funnel-detail-${stepNumber}`);
+            if (selectedDetail) {
+                selectedDetail.classList.remove('hidden');
+            }
+
+            // 모든 퍼널 단계에서 'active' 클래스 제거
+            document.querySelectorAll('.funnel-step').forEach(step => {
+                step.classList.remove('active');
+            });
+
+            // 선택된 퍼널 단계에 'active' 클래스 추가
+            const selectedStep = document.querySelector(`.funnel-step.step-${stepNumber}`);
+            if(selectedStep) {
+                selectedStep.classList.add('active');
+            }
+        }
+
+        // === 이미지 라이트박스 함수 (수정됨: 갤러리 화살표 숨김) ===
+        function openLightbox(src, url = null) {
+            const lightbox = document.getElementById('imageLightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            
+            if (lightbox && lightboxImage) {
+                lightboxImage.src = src;
+
+                // 이전 핸들러 및 스타일 초기화
+                const defaultClickHandler = (event) => event.stopPropagation();
+                
+                // --- START: 클릭 이벤트 핸들러를 이미지 대신 래퍼로 이동 (Task 3) ---
+                // lightboxImage.onclick = defaultClickHandler; 
+                // --- END: 클릭 이벤트 핸들러를 이미지 대신 래퍼로 이동 (Task 3) ---
+                
+                lightboxImage.style.cursor = 'default';
+
+                // URL이 제공된 경우, 클릭 시 새 탭에서 URL 열기
+                if (url) {
+                    lightboxImage.style.cursor = 'pointer';
+                    // --- START: 클릭 이벤트 핸들러를 이미지 대신 래퍼로 이동 (Task 3) ---
+                    lightboxImage.onclick = (event) => { // URL이 있을 때만 이미지에 직접 클릭 핸들러 추가
+                    // --- END: 클릭 이벤트 핸들러를 이미지 대신 래퍼로 이동 (Task 3) ---
+                        event.stopPropagation();
+                        window.open(url, '_blank', 'noopener,noreferrer');
+                    };
+                } else {
+                     // --- START: URL 없을 시 핸들러 초기화 (Task 3) ---
+                     lightboxImage.onclick = null; // 기본 핸들러는 래퍼에 있음
+                     // --- END: URL 없을 시 핸들러 초기화 (Task 3) ---
+                }
+                
+                lightbox.classList.remove('hidden');
+                lightbox.classList.add('flex');
+
+                // --- START: 갤러리 화살표 숨기기 (수정) ---
+                document.getElementById('lightboxPrev').classList.add('hidden');
+                document.getElementById('lightboxNext').classList.add('hidden');
+                // --- END: 갤러리 화살표 숨기기 ---
+            }
+        }
+
+        // === START: 새 갤러리 라이트박스 함수 (신규) ===
+        function openGalleryLightbox(index) {
+            currentGallery = trustGallery; // '신뢰 기반' 갤러리 할당
+            currentGalleryIndex = index;
+            
+            updateLightboxForGallery();
+            
+            // 모달 표시
+            const lightbox = document.getElementById('imageLightbox');
+            lightbox.classList.remove('hidden');
+            lightbox.classList.add('flex');
+        }
+
+        function changeGalleryImage(direction, event) {
+            event.stopPropagation(); // 배경 클릭(closeLightbox) 방지
+            currentGalleryIndex += direction;
+            
+            if (currentGalleryIndex < 0) {
+                currentGalleryIndex = currentGallery.length - 1;
+            } else if (currentGalleryIndex >= currentGallery.length) {
+                currentGalleryIndex = 0;
+            }
+            
+            updateLightboxForGallery();
+        }
+
+        function updateLightboxForGallery() {
+            const lightboxImage = document.getElementById('lightboxImage');
+            const prevButton = document.getElementById('lightboxPrev');
+            const nextButton = document.getElementById('lightboxNext');
+
+            if (lightboxImage && prevButton && nextButton) {
+                lightboxImage.src = currentGallery[currentGalleryIndex];
+                
+                // 갤러리 화살표 표시
+                prevButton.classList.remove('hidden');
+                nextButton.classList.remove('hidden');
+                
+                // --- START: 갤러리 라이트박스용 클릭 핸들러 초기화 (Task 3) ---
+                // 갤러리 이미지는 클릭으로 URL을 열지 않음
+                lightboxImage.style.cursor = 'default';
+                lightboxImage.onclick = null;
+                // --- END: 갤러리 라이트박스용 클릭 핸들러 초기화 (Task 3) ---
+            }
+        }
+        // === END: 새 갤러리 라이트박스 함수 ===
+
+
+        // === 라이트박스 닫기 함수 (수정됨: 갤러리 상태 초기화) ===
+        function closeLightbox() {
+            const lightbox = document.getElementById('imageLightbox');
+            const lightboxImage = document.getElementById('lightboxImage');
+            if (lightbox && lightboxImage) {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                lightboxImage.src = ""; // 메모리 정리를 위해 src 비우기
+
+                // --- START: 갤러리 상태 초기화 (수정) ---
+                document.getElementById('lightboxPrev').classList.add('hidden');
+                document.getElementById('lightboxNext').classList.add('hidden');
+                currentGallery = [];
+                currentGalleryIndex = 0;
+                // --- END: 갤러리 상태 초기화 ---
+
+                // 모달이 닫힐 때 핸들러와 스타일을 확실히 초기화
+                // --- START: 클릭 핸들러 초기화 (Task 3) ---
+                lightboxImage.onclick = null;
+                // --- END: 클릭 핸들러 초기화 (Task 3) ---
+                lightboxImage.style.cursor = 'default';
+            }
+        }
+
+        // === START: 새 비디오 라이트박스 함수 *** -->
+        function openVideoLightbox(videoId) {
+            const lightbox = document.getElementById('videoLightbox');
+            const content = document.getElementById('videoLightboxContent');
+            if (lightbox && content) {
+                // 자동 재생(&autoplay=1) 및 관련 동영상 표시 안함(&rel=0) 쿼리 추가
+                content.innerHTML = `<iframe class="absolute top-0 left-0 w-full h-full" src="https://www.youtube.com/embed/${videoId}?rel=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+                lightbox.classList.remove('hidden');
+                lightbox.classList.add('flex');
+            }
+        }
+
+        function closeVideoLightbox(event) {
+            // 이벤트 전파 중지 (배경 클릭 시 content 클릭으로 간주되는 것 방지)
+            if (event) {
+                event.stopPropagation(); 
+            }
+            
+            const lightbox = document.getElementById('videoLightbox');
+            const content = document.getElementById('videoLightboxContent');
+            if (lightbox && content) {
+                lightbox.classList.add('hidden');
+                lightbox.classList.remove('flex');
+                // 모달을 닫을 때 iframe 내용을 비워서 비디오/오디오 재생을 중지시킴
+                content.innerHTML = "";
+            }
+        }
+        // === END: 새 비디오 라이트박스 함수 ===
+
+
+        document.addEventListener('DOMContentLoaded', function() {
+            // === 차트 생성 코드 ===
+            const ctxCombined = document.getElementById('storyCombinedProcessChart');
+            if (ctxCombined) {
+                new Chart(ctxCombined.getContext('2d'), {
+                    type: 'bar', // 기본 타입: 막대
+                    data: {
+                        labels: ['초기 평균', '5월', '6월 (개선)', '7월 (회복)'],
+                        datasets: [
+                            {
+                                label: '월 개인 매출',
+                                data: [300, 5900, 3100, 5600], // 단위: 만원
+                                backgroundColor: '#E5E7EB', // 연한 회색 막대
+                                yAxisID: 'y-axis-sales',
+                                order: 2 // 라인 뒤에 그려지도록 순서 지정
+                            },
+                            {
+                                label: '상담 전환율',
+                                data: [10, 57, 43, 66.6], // 단위: %
+                                type: 'line', // 이 데이터셋만 라인 차트로 변경
+                                borderColor: '#4A80F3', // 파란색 선 (수정됨)
+                                backgroundColor: 'transparent',
+                                borderWidth: 3,
+                                pointRadius: 5,
+                                pointBackgroundColor: '#FFFFFF',
+                                pointBorderColor: '#4A80F3',
+                                pointBorderWidth: 2,
+                                tension: 0.1,
+                                yAxisID: 'y-axis-conversion',
+                                order: 1 // 막대 앞에 그려지도록 순서 지정
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        interaction: {
+                            mode: 'index',
+                            intersect: false,
+                        },
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                            },
+                            tooltip: {
+                                callbacks: {
+                                    label: function(context) {
+                                        let label = context.dataset.label || '';
+                                        if (label) {
+                                            label += ': ';
+                                        }
+                                        if (context.parsed.y !== null) {
+                                            if (context.dataset.yAxisID === 'y-axis-conversion') {
+                                                label += context.parsed.y.toFixed(1) + '%';
+                                            } else {
+                                                const valueInTenThousands = context.parsed.y;
+                                                if (valueInTenThousands >= 10000) {
+                                                    label += (valueInTenThousands / 10000).toFixed(1).replace('.0','') + '억원';
+                                                } else if (valueInTenThousands >= 1000) {
+                                                     label += (valueInTenThousands / 1000).toFixed(1).replace('.0','') + '천만원';
+                                                } else {
+                                                     label += valueInTenThousands.toFixed(0) + '만원';
+                                                }
+                                            }
+                                        }
+                                        return label;
+                                    }
+                                }
+                            }
+                        },
+                        scales: {
+                            'y-axis-sales': {
+                                type: 'linear',
+                                position: 'left',
+                                beginAtZero: true,
+                                max: 6500,
+                                title: {
+                                    display: true,
+                                    text: '월 매출 (만원)'
+                                },
+                                ticks: {
+                                    callback: function(value) {
+                                        if (value >= 10000) return (value / 10000) + '억원';
+                                        if (value >= 1000) return (value / 1000) + '천만원';
+                                        return value + '만원';
+                                    }
+                                },
+                                grid: {
+                                    borderColor: '#e5e7eb',
+                                }
+                            },
+                            'y-axis-conversion': {
+                                type: 'linear',
+                                position: 'right',
+                                beginAtZero: true,
+                                max: 70,
+                                title: {
+                                    display: true,
+                                    text: '전환율 (%)'
+                                },
+                                ticks: {
+                                    callback: value => value + '%'
+                                },
+                                grid: {
+                                    drawOnChartArea: false,
+                                },
+                            },
+                            x: {
+                                grid: {
+                                    display: false
+                                }
+                            }
+                        }
+                    }
+                });
+            } else {
+                 console.error("Canvas element 'storyCombinedProcessChart' not found.");
+            }
+
+            // === 타임라인 활성화 Intersection Observer ===
+            const timelineItems = document.querySelectorAll('.timeline-item');
+            if (timelineItems.length > 0) {
+                const observer = new IntersectionObserver((entries) => {
+                    entries.forEach(entry => {
+                        if (entry.isIntersecting) {
+                            timelineItems.forEach(item => item.classList.remove('active'));
+                            entry.target.classList.add('active');
+                        }
+                    });
+                }, {
+                    rootMargin: '-40% 0px -60% 0px',
+                    threshold: 0
+                });
+                timelineItems.forEach(item => observer.observe(item));
+            } else {
+                console.warn("Timeline items not found for Intersection Observer.");
+            }
+
+             // === 상세 내용 초기 숨김 처리 (복원) ===
+            const detailSections = document.querySelectorAll('.details-content');
+            detailSections.forEach(section => {
+                 section.style.display = 'none';
+                 const button = section.previousElementSibling;
+                 if(button && button.classList.contains('details-button')) {
+                    button.innerHTML = '자세히 보기 &rarr;';
+                    button.setAttribute('aria-expanded', 'false');
+                    button.setAttribute('aria-controls', section.id);
+                 }
+            });
+
+             // === 네비게이션 활성 링크 스크립트 ===
+            const links = document.querySelectorAll('header nav a');
+            let currentPage = window.location.pathname.split('/').pop() || 'index.html';
+            links.forEach(link => {
+                const linkPage = link.getAttribute('href');
+                if (linkPage === currentPage) {
+                    link.classList.add('text-[#4A80F3]', 'font-bold');
+                    link.classList.remove('hover:text-[#4A80F3]');
+                    link.setAttribute('aria-current', 'page');
+                } else {
+                    link.removeAttribute('aria-current');
+                    link.classList.remove('text-[#4A80F3]', 'font-bold');
+                }
+            });
+
+            // === START: AI 모달 및 PDF 다운로드 로직 ===
+            const downloadButton = document.getElementById('downloadPdfButton');
+            const modal = document.getElementById('aiHelpModal');
+            const modalContent = document.getElementById('modalContent');
+            const closeModalButton = document.getElementById('closeModalButton');
+            
+            // --- START: 수정된 부분 ---
+            // pdfPath: 다운로드를 시도할 실제 파일의 경로 (파일명)
+            const pdfPath = 'sales_system_1percent.pdf';
+            // pdfFileName: 다운로드 시 사용자에게 저장될 파일명
+            const pdfFileName = 'sales_system_1percent.pdf'; 
+            // --- END: 수정된 부분 ---
+
+            function showModal() {
+                modal.classList.remove('hidden');
+                modal.classList.add('flex');
+                setTimeout(() => {
+                    modalContent.classList.remove('scale-95', 'opacity-0');
+                    modalContent.classList.add('scale-100', 'opacity-100');
+                }, 10);
+            }
+
+            function hideModal() {
+                modalContent.classList.add('scale-95', 'opacity-0');
+                modalContent.classList.remove('scale-100', 'opacity-100');
+                setTimeout(() => {
+                    modal.classList.add('hidden');
+                    modal.classList.remove('flex');
+                }, 300);
+            }
+
+            if (downloadButton && modal && modalContent && closeModalButton) {
+                downloadButton.addEventListener('click', function() {
+                    const link = document.createElement('a');
+                    link.href = pdfPath;
+                    link.download = pdfFileName;
+                    document.body.appendChild(link);
+                    link.click();
+                    document.body.removeChild(link);
+                    showModal();
+                });
+
+                closeModalButton.addEventListener('click', hideModal);
+
+                modal.addEventListener('click', function(event) {
+                    if (event.target === modal) {
+                        hideModal();
+                    }
+                });
+            } else {
+                console.error("PDF 다운로드 버튼 또는 모달 요소를 찾을 수 없습니다.");
+            }
+            
+            // === NEW: 퍼널 초기 상태 설정 ===
+            showFunnelDetails(1);
+
+            // === 이미지 라이트박스 클릭 이벤트 설정 (수정됨) ===
+            document.querySelectorAll('main img').forEach(img => {
+                // <a> 태그로 감싸져 있거나, onclick이 이미 HTML에 명시된 경우는 제외합니다.
+                if (!img.closest('a') && !img.hasAttribute('onclick')) {
+                    img.addEventListener('click', function() {
+                        // URL 파라미터 없이 기본 라이트박스 호출
+                        openLightbox(this.src);
+                    });
+                }
+            });
+        });
+    </script>
+
+</body>
+</html>

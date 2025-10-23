@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>최재영 | 증명하고 돌아온 시스템 빌더</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        body {
+            font-family: 'Pretendard', sans-serif;
+        }
+       .fade-in-up {
+            animation: fadeInUp 1s ease-out forwards;
+            opacity: 0;
+        }
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+       /* 애니메이션 지연 클래스 */
+       .delay-200 { animation-delay: 0.2s; }
+       .delay-400 { animation-delay: 0.4s; }
+       .delay-600 { animation-delay: 0.6s; }
+       .delay-800 { animation-delay: 0.8s; }
+
+       /* 활성 네비게이션 링크 스타일 */
+       .nav-active {
+            color: #4A80F3; /* 파란색 */
+            font-weight: 700; /* 굵게 */
+            text-decoration: underline; /* 밑줄 */
+            text-decoration-thickness: 2px; /* 밑줄 두께 */
+            text-underline-offset: 4px; /* 밑줄 간격 */
+        }
+        /* 활성 링크는 호버 효과 제거 (Tailwind CSS와 충돌 방지) */
+        .nav-active.hover\:text-\[\#4A80F3\]:hover {
+            color: #4A80F3 !important;
+        }
+
+
+    </style>
+</head>
+<body class="bg-white text-[#333333] tracking-tight flex flex-col min-h-screen">
+
+    <header class="fixed top-0 left-0 right-0 bg-white bg-opacity-80 backdrop-blur-sm z-10 border-b border-gray-200">
+        <div class="max-w-5xl mx-auto px-6">
+            <nav class="flex justify-between items-center h-20">
+                <a href="index.html" class="text-lg font-bold text-[#333333] hover:text-[#4A80F3] transition-colors">최재영</a>
+                <div class="hidden md:flex space-x-8 font-medium text-[#555555]">
+                    <a href="index.html" class="hover:text-[#4A80F3] transition-colors">메인</a>
+                    <a href="portfolio.html" class="hover:text-[#4A80F3] transition-colors">포트폴리오</a>
+                    <a href="resume.html" class="hover:text-[#4A80F3] transition-colors">경력기술서</a>
+                    <a href="proposal.html" class="hover:text-[#4A80F3] transition-colors">미래 기여 제안</a>
+                </div>
+                 <div class="md:hidden">
+                    <button id="mobile-menu-button" aria-label="메뉴 열기" aria-expanded="false" aria-controls="mobile-menu">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                 </div>
+            </nav>
+        </div>
+        <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 right-0 bg-white shadow-md py-4">
+            <a href="index.html" class="block px-6 py-2 text-[#555555] hover:bg-gray-100">메인</a>
+            <a href="portfolio.html" class="block px-6 py-2 text-[#555555] hover:bg-gray-100">포트폴리오</a>
+            <a href="resume.html" class="block px-6 py-2 text-[#555555] hover:bg-gray-100">경력기술서</a>
+            <a href="proposal.html" class="block px-6 py-2 text-[#555555] hover:bg-gray-100">미래 기여 제안</a>
+        </div>
+    </header>
+
+    <main class="pt-20 flex-grow">
+        <section class="min-h-screen flex items-center bg-gradient-to-b from-white to-[#FAFAFA]">
+            <div class="max-w-4xl mx-auto px-6 text-left w-full">
+                <h1 class="text-4xl md:text-5xl font-extrabold leading-tight mb-6 fade-in-up">
+                    1년의 현장 검증,<br>이제 '결과를 만드는 시스템'으로 기여하겠습니다.
+                </h1>
+                <p class="text-xl md:text-2xl text-[#555555] leading-relaxed fade-in-up delay-200">
+                    이상한마케팅의 불합격에서 시작된 1년,<br class="hidden md:block">
+                    귀사가 찾는 '결과'를 '시스템'으로 증명하기 위한 여정이었습니다.
+                </p>
+            </div>
+        </section>
+
+        <section class="py-24 md:py-32 bg-[#FAFAFA]">
+            <div class="max-w-3xl mx-auto px-6 text-center">
+                <h2 class="text-3xl md:text-4xl font-bold mb-8 fade-in-up">핵심 가치 제안</h2>
+                <p class="text-lg md:text-xl leading-loose text-[#333333] fade-in-up delay-200">
+                    저는 <strong class="font-semibold text-[#4A80F3]">현장에서 검증된 '시스템'</strong>으로 <strong class="font-semibold text-[#4A80F3]">'고객 성공'</strong>을 설계하고, 숫자로 <strong class="font-semibold text-[#4A80F3]">'결과'</strong>를 증명하는 마케터입니다.
+                    맡겨진 일뿐 아니라 필요한 영역을 스스로 찾아 개선하는 <strong class="font-semibold text-[#4A80F3]">'능동성'</strong>으로 귀사의 '고객 성공'과 '매출 증대'에 직접 기여하겠습니다.
+                </p>
+            </div>
+        </section>
+
+        <section class="py-24 md:py-32 text-center bg-white">
+            <div class="max-w-4xl mx-auto px-6">
+                <h2 class="text-3xl md:text-4xl font-bold mb-4 fade-in-up">숫자로 확인하실 수 있는 지난 1년의 과정과 결과입니다.</h2>
+                <a href="portfolio.html" class="inline-block mt-6 bg-[#4A80F3] text-white font-bold text-lg py-4 px-10 rounded-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 fade-in-up delay-400">
+                    검증된 결과 확인하기
+                </a>
+            </div>
+        </section>
+    </main>
+
+    <footer class="py-12 bg-[#FAFAFA] border-t border-gray-200">
+        <div class="max-w-5xl mx-auto px-6 text-center text-[#555555]">
+            <p>&copy; 2025 Choi Jae Young. All Rights Reserved.</p>
+            <p class="text-sm mt-2 mb-4">본 웹사이트는 이상한마케팅 '콘텐츠 마케터(PM)' 직무 지원을 위해 제작되었습니다.</p>
+            <a href="[최재영_지원서류_통합본.pdf]" download="최재영_지원서류_통합본.pdf" class="inline-flex items-center text-sm font-medium py-2 px-4 rounded-md bg-[#AAAAAA] text-white hover:bg-[#999999] transition-colors duration-300">
+                <span class="mr-2">🖨️</span> 인쇄용 전체 자료 받기
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // --- 네비게이션 활성화 로직 ---
+            const desktopLinks = document.querySelectorAll('header nav div.hidden a'); // 데스크탑 네비 링크
+            const mobileLinks = document.querySelectorAll('#mobile-menu a'); // 모바일 네비 링크
+            let currentPage = window.location.pathname.split('/').pop();
+
+            // 루트 경로('') 또는 'index.html'일 경우 currentPage를 'index.html'로 통일
+            if (currentPage === "" || currentPage === "index.html") {
+                currentPage = 'index.html';
+            }
+
+            // 모든 링크에 대해 처리
+            function setActiveLink(links) {
+                links.forEach(link => {
+                    const linkPage = link.getAttribute('href');
+                    if (linkPage === currentPage) {
+                        link.classList.add('nav-active'); // 활성 스타일 클래스 추가
+                        link.setAttribute('aria-current', 'page'); // 접근성 속성 추가
+                        link.classList.remove('hover:text-[#4A80F3]'); // 호버 효과 제거 (CSS에서 !important 처리 필요)
+                    } else {
+                        link.classList.remove('nav-active');
+                        link.removeAttribute('aria-current');
+                    }
+                });
+            }
+
+            setActiveLink(desktopLinks);
+            setActiveLink(mobileLinks);
+
+            // --- 모바일 메뉴 토글 로직 ---
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', () => {
+                    const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+                    menuButton.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('hidden');
+                    // 버튼 레이블 변경 (접근성 향상)
+                    menuButton.setAttribute('aria-label', isExpanded ? '메뉴 열기' : '메뉴 닫기');
+
+                    // 아이콘 변경 (선택 사항: 햄버거/X 아이콘 토글)
+                    if (!isExpanded) {
+                        // 메뉴 열릴 때 X 아이콘으로 변경 (SVG 코드 예시)
+                        menuButton.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>`;
+                    } else {
+                        // 메뉴 닫힐 때 햄버거 아이콘으로 복귀 (SVG 코드 예시)
+                        menuButton.innerHTML = `<svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>`;
+                    }
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>

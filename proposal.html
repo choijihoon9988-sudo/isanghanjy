@@ -1,0 +1,474 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>미래 기여 제안 | 최재영</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css" />
+    <style>
+        /* Pretendard 폰트 적용 및 기본 스타일 */
+        body {
+            font-family: 'Pretendard', sans-serif;
+            background-color: #FFFFFF;
+            color: #1f2937; /* gray-800: 기본 텍스트 색상 명도 대비 강화 */
+            letter-spacing: -0.02em;
+        }
+
+        /* 헤더 고정 및 배경 블러 처리 */
+        header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            background-color: rgba(255, 255, 255, 0.8); /* 투명도 조절 */
+            backdrop-filter: blur(8px); /* 블러 효과 */
+            z-index: 50; /* 다른 요소 위에 오도록 z-index 설정 */
+            border-bottom: 1px solid #e5e7eb; /* 구분선 추가 */
+        }
+
+        /* 활성 네비게이션 링크 스타일 */
+        .nav-active {
+            color: #3b82f6; /* blue-500: 활성 링크 색상 */
+            font-weight: 700;
+            text-decoration: underline;
+            text-decoration-thickness: 2px;
+            text-underline-offset: 4px;
+        }
+
+        /* --- 개선된 플라이휠 다이어그램 스타일 시작 --- */
+        .flywheel-container {
+            max-width: 600px; /* 최대 너비 설정 */
+            margin: 0 auto; /* 가운데 정렬 */
+            padding: 2rem;
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+            border-radius: 1rem; /* rounded-xl */
+            background-color: #f9fafb; /* bg-gray-50 */
+            position: relative;
+        }
+
+        .flywheel-core {
+            width: 130px; /* 크기 조정 */
+            height: 130px; /* 크기 조정 */
+            background-color: #3b82f6; /* bg-blue-500: 핵심 색상 */
+            color: white;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            font-weight: 700;
+            font-size: 1.1rem; /* 폰트 크기 조정 */
+            line-height: 1.3;
+            padding: 1rem;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 10;
+            box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1); /* 그림자 추가 */
+        }
+
+        /* 플라이휠 단계 아이템 (공통 스타일) */
+        .flywheel-item {
+            position: absolute;
+            width: 180px; /* 너비 설정 */
+            text-align: center;
+            padding: 0.75rem; /* p-3 */
+            background-color: white;
+            border: 1px solid #e5e7eb; /* border-gray-200 */
+            border-radius: 0.5rem; /* rounded-lg */
+            box-shadow: 0 1px 3px 0 rgb(0 0 0 / 0.1), 0 1px 2px -1px rgb(0 0 0 / 0.1);
+            z-index: 5;
+            transition: transform 0.2s ease-in-out; /* 호버 효과 */
+        }
+        .flywheel-item:hover {
+             transform: translateY(-4px) scale(1.03); /* 호버 시 약간 커지도록 */
+             box-shadow: 0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1);
+        }
+
+        /* 단계 번호 스타일 (아래 목록과 통일) */
+        .flywheel-step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem; /* w-7 */
+            height: 1.75rem; /* h-7 */
+            margin-right: 0.5rem; /* mr-2 */
+            border-radius: 9999px; /* rounded-full */
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            font-weight: 700;
+            font-size: 0.875rem; /* text-sm */
+        }
+
+        /* === 수정된 각 단계별 위치 === */
+        .flywheel-item-1 { /* 상단 (1) */
+            top: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        .flywheel-item-2 { /* 우측 (2) */
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+        }
+         /* 기존 flywheel-item-4의 위치와 내용이 3단계로 변경됨에 따라 위치는 유지하고 번호만 3으로 변경 */
+         .flywheel-item-3 { /* 하단 (3) */
+            bottom: 1rem;
+            left: 50%;
+            transform: translateX(-50%);
+        }
+        /* 기존 flywheel-item-3의 위치와 내용이 4단계로 변경됨에 따라 위치는 유지하고 번호만 4로 변경 */
+        .flywheel-item-4 { /* 좌측 (4) */
+            top: 50%;
+            left: 1rem;
+            transform: translateY(-50%);
+        }
+        /* === 수정 완료 === */
+
+
+        /* 화살표 (SVG 사용) */
+        .flywheel-arrows {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            overflow: hidden; /* 컨테이너 밖으로 나가지 않도록 */
+            z-index: 1; /* 아이템 아래 */
+            pointer-events: none; /* 클릭 방지 */
+        }
+         /* 반응형: 작은 화면에서는 화살표 숨김 */
+        @media (max-width: 640px) {
+            .flywheel-arrows {
+                display: none;
+            }
+            .flywheel-item {
+                position: relative; /* 상대 위치로 변경 */
+                left: auto;
+                right: auto;
+                top: auto;
+                bottom: auto;
+                transform: none;
+                width: 80%; /* 너비 조정 */
+                margin: 1.5rem auto; /* 상하 여백 및 가운데 정렬 */
+            }
+            .flywheel-container {
+                padding-top: 150px; /* 코어 요소와 겹치지 않도록 패딩 조정 */
+                min-height: 800px; /* 최소 높이 확보 */
+            }
+            .flywheel-core {
+                top: 75px; /* 상단으로 이동 */
+                transform: translateX(-50%);
+            }
+        }
+
+
+        /* 목록 번호 스타일 */
+        .list-step-number {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 1.75rem; /* w-7 */
+            height: 1.75rem; /* h-7 */
+            margin-right: 1rem; /* mr-4 */
+            border-radius: 9999px; /* rounded-full */
+            background-color: #3b82f6; /* bg-blue-500 */
+            color: white;
+            font-weight: 700;
+            flex-shrink: 0; /* 크기 줄어들지 않도록 */
+        }
+
+        /* 섹션 구분선 */
+        hr {
+            border-top: 1px solid #e5e7eb; /* border-gray-200 */
+        }
+
+        /* 버튼 스타일 */
+        .cta-button {
+            display: inline-block;
+            background-color: #1f2937; /* bg-gray-800 */
+            color: white;
+            font-weight: 700;
+            font-size: 1.125rem; /* text-lg */
+            padding: 1rem 3rem; /* py-4 px-12 */
+            border-radius: 0.5rem; /* rounded-lg */
+            transition: all 0.3s ease; /* transition-all duration-300 */
+            transform-origin: center;
+        }
+        .cta-button:hover {
+            background-color: #111827; /* hover:bg-gray-900 */
+            transform: scale(1.05); /* hover:scale-105 */
+        }
+        /* --- 개선된 플라이휠 다이어그램 스타일 끝 --- */
+
+    </style>
+</head>
+<body class="flex flex-col min-h-screen">
+
+    <header>
+        <div class="max-w-5xl mx-auto px-6">
+            <nav class="flex justify-between items-center h-20">
+                <a href="index.html" class="text-xl font-bold text-gray-800 hover:text-blue-500 transition-colors">최재영</a>
+                <div class="hidden md:flex space-x-8 font-medium text-gray-600">
+                    <a href="index.html" class="hover:text-blue-500 transition-colors">메인</a>
+                    <a href="portfolio.html" class="hover:text-blue-500 transition-colors">포트폴리오</a>
+                    <a href="resume.html" class="hover:text-blue-500 transition-colors">경력기술서</a>
+                    <a href="proposal.html" class="hover:text-blue-500 transition-colors nav-active" aria-current="page">미래 기여 제안</a>
+                </div>
+                <div class="md:hidden">
+                    <button id="mobile-menu-button" aria-label="메뉴 열기">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                 </div>
+            </nav>
+        </div>
+         <div id="mobile-menu" class="hidden md:hidden absolute top-20 left-0 right-0 bg-white shadow-md py-4">
+            <a href="index.html" class="block px-6 py-2 text-gray-600 hover:bg-gray-100">메인</a>
+            <a href="portfolio.html" class="block px-6 py-2 text-gray-600 hover:bg-gray-100">포트폴리오</a>
+            <a href="resume.html" class="block px-6 py-2 text-gray-600 hover:bg-gray-100">경력기술서</a>
+            <a href="proposal.html" class="block px-6 py-2 text-blue-500 font-bold hover:bg-gray-100" aria-current="page">미래 기여 제안</a>
+        </div>
+    </header>
+
+    <main class="pt-24 md:pt-32 flex-grow">
+        <div class="max-w-4xl mx-auto px-6">
+
+            <section class="text-center pt-12 pb-20 md:pb-24" aria-labelledby="page-title">
+                <h1 id="page-title" class="text-4xl md:text-5xl font-extrabold mb-6 text-gray-900">미래 기여 제안: A2A 플라이휠</h1>
+                <p class="max-w-3xl mx-auto text-lg md:text-xl text-gray-600 leading-relaxed">
+                    비록 외부자의 관점이지만, 귀사의 '고객 성공' 철학에 더 깊이 기여할 방안을 고민했습니다. 이는 완성된 답이 아닌, 제가 가진 시스템 구축 역량을 바탕으로 조심스럽게 제안드리는 하나의 '성장 가설'입니다.
+                </p>
+            </section>
+
+            <section class="mb-20 md:mb-24" aria-labelledby="diagnosis-title">
+                <div class="grid md:grid-cols-2 gap-12 items-center">
+                    <div class="order-2 md:order-1">
+                        <h2 id="diagnosis-title" class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">진단: '성공적 이탈'의 역설</h2>
+                        <p class="text-lg text-gray-600 leading-relaxed">
+                            이상한마케팅의 교육 사업(이상한 아카데미 등)은 수강생의 성공적인 성장을 돕습니다. 하지만 역설적으로, 교육의 성공은 곧 고객의 '졸업'과 '이탈(Churn)'로 이어져 LTV(고객 생애 가치)의 기회손실을 낳을 수 있습니다.
+                        </p>
+                    </div>
+                    <div class="order-1 md:order-2">
+                         <div class="rounded-lg bg-gray-50 border border-gray-200 p-8 text-center shadow-sm">
+                            <svg class="w-16 h-16 text-red-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                              <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
+                            </svg>
+                            <h3 class="text-xl font-bold mb-2 text-gray-800">성공의 역설 (The Paradox of Success)</h3>
+                            <p class="text-gray-600">교육의 성공이 역설적으로<br>고객의 '독립'으로 이어질 수 있습니다.</p>
+                         </div>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-20 md:my-24">
+
+            <section class="mb-20 md:mb-24" aria-labelledby="opportunity-title">
+                <div class="text-center mb-16">
+                    <h2 id="opportunity-title" class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">기회: 수천 명의 '준비된 잠재고객'</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">그러나 이 '성공적으로 이탈한 고객'들은 사실상 최고의 잠재 대행 서비스 고객 풀(Pool)입니다.</p>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-blue-50 p-8 rounded-lg border border-blue-200 shadow-sm">
+                        <svg class="w-12 h-12 text-blue-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75 11.25 15 15 9.75M21 12a9 9 0 1 1-18 0 9 9 0 0 1 18 0Z" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">높은 신뢰도</h3>
+                        <p class="text-gray-600">이미 교육 콘텐츠를 통해 회사의 철학과 실력에 대한 깊은 신뢰를 가지고 있습니다.</p>
+                    </div>
+                    <div class="bg-blue-50 p-8 rounded-lg border border-blue-200 shadow-sm">
+                         <svg class="w-12 h-12 text-blue-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M12 18v-5.25m0 0a6.01 6.01 0 0 0 1.5-.189m-1.5.189a6.01 6.01 0 0 1-1.5-.189m3.75 7.478a12.06 12.06 0 0 1-4.5 0m3.75 2.383a14.406 14.406 0 0 1-4.5 0m4.5 0v.375c0 .621-.504 1.125-1.125 1.125h-1.5c-.621 0-1.125-.504-1.125-1.125v-.375m3.75 0a10.499 10.499 0 0 1-4.5 0M3.75 12c0-5.176 4.272-9.375 9.375-9.375s9.375 4.2 9.375 9.375c0 4.697-3.47 8.58-8.125 9.227-1.13.202-2.343.322-3.625.322s-2.495-.12-3.625-.322C7.22 20.58 3.75 16.697 3.75 12Z" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">철학 이해</h3>
+                        <p class="text-gray-600">장기적인 관점의 마케팅과 '고객 성공'의 가치를 이미 이해하고 동의합니다.</p>
+                    </div>
+                    <div class="bg-blue-50 p-8 rounded-lg border border-blue-200 shadow-sm">
+                        <svg class="w-12 h-12 text-blue-500 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                           <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 8.25h19.5M2.25 9h19.5m-16.5 5.25h6m-6 2.25h6m3-3.75H21.75m-3-1.5H21.75m-3 0H21.75m-3 0h1.5m-1.5 0h1.5m-1.5 0H21.75m-3 0h1.5m-1.5 0h1.5m-1.5 0H21.75m-3 0h1.5M12 9.75v10.5M12 9.75a2.25 2.25 0 0 1-2.25-2.25H7.5a2.25 2.25 0 0 1-2.25 2.25v10.5A2.25 2.25 0 0 0 7.5 22.5h1.5a2.25 2.25 0 0 0 2.25-2.25v-1.5a2.25 2.25 0 0 0-2.25-2.25H7.5m3-6.75h.008v.008H10.5v-.008Zm1.5 0h.008v.008H12v-.008Zm1.5 0h.008v.008H13.5v-.008Zm1.5 0h.008v.008H15v-.008Zm1.5 0h.008v.008H16.5v-.008Zm1.5 0h.008v.008H18v-.008Zm1.5 0h.008v.008H19.5v-.008Zm1.5 0h.008v.008H21v-.008Z" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">구매력 검증</h3>
+                        <p class="text-gray-600">고가의 교육 상품을 구매한 경험을 통해, 서비스에 대한 지불 의사가 검증되었습니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-20 md:my-24">
+
+            <section class="mb-20 md:mb-24" role="figure" aria-labelledby="proposal-title">
+                <div class="text-center mb-16">
+                    <h2 id="proposal-title" class="text-3xl md:text-4xl font-bold mb-4 text-gray-900">제안: 'A2A (Academy-to-Agency) 플라이휠' 시스템 구축</h2>
+                    <p class="text-lg text-gray-600 max-w-3xl mx-auto">이탈 고객을 새로운 성장 동력으로 전환하는 선순환 시스템 구축을 제안합니다.</p>
+                </div>
+                <div>
+                    <div class="flywheel-container mb-16 h-[480px] sm:h-[400px]" aria-describedby="flywheel-description">
+                        <div class="flywheel-core" aria-label="A2A 플라이휠 핵심">A2A<br>Flywheel</div>
+
+                        <svg class="flywheel-arrows" viewBox="0 0 600 480" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="10" refY="3.5" orient="auto">
+                                <polygon points="0 0, 10 3.5, 0 7" fill="#9ca3af" /> </marker>
+                            </defs>
+
+                            <path d="M 300, 40 Q 400, 40 500, 150 L 500, 150"
+                                  stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+
+                            <path d="M 500, 240 Q 500, 400 380, 440 L 380, 440"
+                                  stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+
+                            <path d="M 300, 440 Q 200, 440 100, 350 L 100, 350"
+                                  stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+
+                            <path d="M 100, 240 Q 100, 100 220, 40 L 220, 40"
+                                  stroke="#9ca3af" stroke-width="2" fill="none" marker-end="url(#arrowhead)" />
+                        </svg>
+
+                        <div class="flywheel-item flywheel-item-1">
+                            <h4 class="font-bold text-lg mb-1"><span class="flywheel-step-number">1</span>잠재군 식별</h4>
+                            <p class="text-sm text-gray-600">교육 수료생 중 고가치<br>잠재군 데이터 식별</p>
+                        </div>
+                        <div class="flywheel-item flywheel-item-2">
+                            <h4 class="font-bold text-lg mb-1"><span class="flywheel-step-number">2</span>관계 심화</h4>
+                            <p class="text-sm text-gray-600">독점 상위 컨설팅<br>제공</p>
+                        </div>
+                        <div class="flywheel-item flywheel-item-3">
+                            <h4 class="font-bold text-lg mb-1"><span class="flywheel-step-number">3</span>대행 서비스 전환</h4>
+                            <p class="text-sm text-gray-600">맞춤형 제안으로<br>전환 유도</p>
+                        </div>
+                        <div class="flywheel-item flywheel-item-4">
+                            <h4 class="font-bold text-lg mb-1"><span class="flywheel-step-number">4</span>성공사례 확산</h4>
+                            <p class="text-sm text-gray-600">콘텐츠화 → 신규<br>아카데미 유입 강화</p>
+                        </div>
+                        </div>
+                    <p id="flywheel-description" class="sr-only">
+                        A2A 플라이휠 다이어그램. 중앙에는 'A2A Flywheel' 핵심이 있고, 네 단계가 시계방향으로 순환합니다.
+                        1단계: 잠재군 식별 (교육 수료생 중 고가치 잠재군 데이터 식별).
+                        2단계: 관계 심화 (독점 상위 컨설팅 제공).
+                        3단계: 대행 서비스 전환 (맞춤형 제안으로 전환 유도).
+                        4단계: 성공사례 확산 (콘텐츠화하여 신규 아카데미 유입 강화).
+                        이 과정이 반복되며 선순환 구조를 이룹니다.
+                    </p>
+
+                    <ul class="space-y-6 text-lg max-w-3xl mx-auto">
+                        <li class="flex items-start">
+                            <span class="list-step-number">1</span>
+                            <div><strong class="font-bold text-gray-800">잠재군 식별:</strong> 교육 수료생 중 과제 성과, 사업 성장률 등 <strong class="text-blue-600">핵심 지표 상위 10%</strong>에 해당하는 고성장 잠재군을 데이터 기반으로 식별합니다.</div>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="list-step-number">2</span>
+                            <div><strong class="font-bold text-gray-800">상위 프로그램 제공:</strong> 식별된 잠재군(상위 10%)에게만 <strong class="text-blue-600">'성장 가속화 프로그램'</strong>과 같은 소수 정예 컨설팅(예: <strong class="text-blue-600">그룹 코칭, 핵심 업무 대행 Lite</strong>)을 제공하여 관계를 심화시킵니다.</div>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="list-step-number">3</span>
+                            <div><strong class="font-bold text-gray-800">대행 서비스 전환:</strong> 컨설팅 과정에서 사업 성장에 따른 새로운 과제(예: <strong class="text-blue-600">콘텐츠 제작 시간 부족, 퍼포먼스 광고 전문 운영 필요성</strong>)를 진단하고, 이를 해결할 수 있는 맞춤형 대행 서비스(예: <strong class="text-blue-600">콘텐츠 제작 대행, 광고 운영 최적화</strong>)를 제안하여 자연스럽게 전환을 유도합니다.</div>
+                        </li>
+                        <li class="flex items-start">
+                             <span class="list-step-number">4</span>
+                            <div><strong class="font-bold text-gray-800">성공사례 생성/확산:</strong> 전환된 고객의 성공 사례를 콘텐츠화하여, 다시 아카데미 유입을 강화하는 강력한 사회적 증거로 활용합니다.</div>
+                        </li>
+                    </ul>
+                </div>
+            </section>
+
+            <hr class="my-20 md:my-24">
+
+            <section class="mb-20 md:mb-24" aria-labelledby="effects-title">
+                <div class="text-center mb-16">
+                    <h2 id="effects-title" class="text-3xl font-bold md:text-4xl text-gray-900">기대 효과: 지속 가능한 성장 엔진</h2>
+                </div>
+                <div class="grid md:grid-cols-3 gap-8 text-center">
+                    <div class="bg-green-50 p-8 rounded-lg border border-green-200 shadow-sm">
+                        <svg class="w-12 h-12 text-green-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 1 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28-2.28 5.941" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">CAC 획기적 절감</h3>
+                        <p class="text-gray-600">신규 대행 고객을 외부에서 찾는 대신, 이미 확보된 내부 풀을 활용하여 고객 획득 비용(CAC)을 최소화합니다.</p>
+                    </div>
+                    <div class="bg-green-50 p-8 rounded-lg border border-green-200 shadow-sm">
+                        <svg class="w-12 h-12 text-green-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18 9 11.25l4.306 4.306a11.95 11.95 0 0 0 5.814-5.518l2.74-1.22m0 0-5.94-2.281m5.94 2.28 2.28 5.941" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">LTV 극대화</h3>
+                        <p class="text-gray-600">1회성 교육 수강생을 장기적인 대행 서비스 고객으로 전환하여 고객 생애 가치(LTV)를 극대화합니다.</p>
+                    </div>
+                    <div class="bg-green-50 p-8 rounded-lg border border-green-200 shadow-sm">
+                        <svg class="w-12 h-12 text-green-600 mx-auto mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" aria-hidden="true">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 18.75h-9a2.25 2.25 0 0 1-2.25-2.25v-9a2.25 2.25 0 0 1 2.25-2.25h9A2.25 2.25 0 0 1 18.75 7.5v9a2.25 2.25 0 0 1-2.25 2.25Z" />
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M16.5 12a4.5 4.5 0 1 1-9 0 4.5 4.5 0 0 1 9 0Zm0 0c0 1.657 1.007 3 2.25 3h.75v-6h-.75c-1.243 0-2.25 1.343-2.25 3Z" />
+                        </svg>
+                        <h3 class="text-2xl font-bold mb-2 text-gray-800">시장 지배력 강화</h3>
+                        <p class="text-gray-600">교육과 대행 서비스를 잇는 독자적인 선순환 구조를 통해 경쟁사가 모방할 수 없는 강력한 해자를 구축합니다.</p>
+                    </div>
+                </div>
+            </section>
+
+            <hr class="my-20 md:my-24">
+
+            <section class="text-center py-16" aria-labelledby="conclusion-title">
+                <h2 id="conclusion-title" class="text-4xl font-extrabold mb-6 text-gray-900 leading-tight">1년의 과정,<br>이제 결과로 기여하겠습니다.</h2>
+                <p class="max-w-3xl mx-auto text-lg text-gray-600 leading-relaxed mb-10">
+                    전환율 66%, 매출 19배 성장을 만들었던 '고객 성공 시스템' 구축 경험을 바탕으로 이 제안을 드리게 되었습니다. 저의 경험이 어떻게 이상한마케팅의 자산이 될 수 있을지, 다음 단계의 대화를 통해 보여드릴 기회를 얻고 싶습니다.
+                </p>
+                <a href="mailto:tenmilliplus@naver.com" class="cta-button">
+                    면접 제안하기
+                </a>
+            </section>
+
+        </div>
+    </main>
+
+    <footer class="py-12 bg-gray-50 border-t border-gray-200 mt-16">
+        <div class="max-w-5xl mx-auto px-6 text-center text-gray-500">
+            <p>&copy; 2025 Choi Jae Young. All Rights Reserved.</p>
+            <p class="text-sm mt-2 mb-4">본 웹사이트는 이상한마케팅 '콘텐츠 마케터(PM)' 직무 지원을 위해 제작되었습니다.</p>
+            <a href="[최재영_지원서류_통합본.pdf]" download="최재영_지원서류_통합본.pdf" class="inline-flex items-center text-sm font-medium py-2 px-4 rounded-md bg-[#AAAAAA] text-white hover:bg-[#999999] transition-colors duration-300">
+                <span class="mr-2">🖨️</span> 인쇄용 전체 자료 받기
+            </a>
+        </div>
+    </footer>
+
+    <script>
+        // 네비게이션 활성화 및 모바일 메뉴 토글 스크립트
+        document.addEventListener('DOMContentLoaded', function() {
+            const links = document.querySelectorAll('header nav a, #mobile-menu a');
+            let currentPage = window.location.pathname.split('/').pop();
+            // 기본 페이지 (index.html 등) 처리
+            if (currentPage === "" || currentPage === "index.html") {
+                 currentPage = 'index.html'; // 명시적으로 index.html 지정
+                 // 메인 링크 활성화 (다른 페이지에서는 proposal.html이 활성화됨)
+                 document.querySelector('header nav a[href="index.html"]')?.classList.add('nav-active');
+                 document.querySelector('#mobile-menu a[href="index.html"]')?.classList.add('nav-active');
+            } else {
+                 // 현재 페이지와 일치하는 링크 활성화
+                 links.forEach(link => {
+                     const linkPage = link.getAttribute('href');
+                     if (linkPage === currentPage) {
+                         link.classList.add('nav-active');
+                         link.setAttribute('aria-current', 'page'); // 접근성 속성 추가
+                         link.classList.remove('hover:text-blue-500'); // 호버 효과 제거
+                     } else {
+                         link.classList.remove('nav-active');
+                         link.removeAttribute('aria-current');
+                     }
+                 });
+            }
+
+
+             // 모바일 메뉴 버튼 기능
+            const menuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+
+            if (menuButton && mobileMenu) {
+                menuButton.addEventListener('click', () => {
+                    const isExpanded = menuButton.getAttribute('aria-expanded') === 'true';
+                    menuButton.setAttribute('aria-expanded', !isExpanded);
+                    mobileMenu.classList.toggle('hidden');
+                    menuButton.setAttribute('aria-label', isExpanded ? '메뉴 열기' : '메뉴 닫기');
+                });
+            }
+        });
+    </script>
+
+</body>
+</html>
