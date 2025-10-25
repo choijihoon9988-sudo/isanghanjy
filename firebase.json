@@ -1,6 +1,6 @@
 {
   "hosting": {
-    "public": "public",
+    "public": ".", // 변경: 'public' 폴더 대신 현재 루트 폴더의 모든 파일을 배포합니다.
     "ignore": [
       "firebase.json",
       "**/.*",
